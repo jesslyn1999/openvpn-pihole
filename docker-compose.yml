@@ -28,6 +28,8 @@ services:
     pihole:
         container_name: pihole
         image: pihole/pihole:latest
+        ports:
+            - "80:80/tcp"
         depends_on:
             - "openvpn"
         networks:
