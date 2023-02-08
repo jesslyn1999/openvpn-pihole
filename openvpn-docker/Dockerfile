@@ -6,7 +6,7 @@ WORKDIR /opt/app
 # Install Latest OpenVPN Version
 RUN apt-get update -y && \
     apt-get upgrade -y && \
-    apt-get install gnupg wget -y && \
+    apt-get install gnupg wget iputils-ping telnet lsof -y && \
     wget -qO - 'https://swupdate.openvpn.net/repos/repo-public.gpg' | apt-key add - && \
     echo 'deb http://build.openvpn.net/debian/openvpn/stable bionic main' > /etc/apt/sources.list.d/openvpn-aptrepo.list && \
     apt-get install openvpn -y
@@ -21,6 +21,7 @@ RUN wget -q https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.7/EasyRSA
 RUN apt-get install iptables -y
 
 EXPOSE 1194/udp
+EXPOSE 7505
 
 RUN chmod +x bin/*
 RUN chmod +x docker-entrypoint.sh

@@ -6,7 +6,10 @@ services:
         container_name: openvpn
         build: ./openvpn-docker
         ports:
-            - 1194:1194/udp
+            - "1194:1194/udp"
+            - "7505:7505"
+        expose:
+            - "7505"
         networks:
             vpn-net:
                 ipv4_address: 172.20.0.3
@@ -25,11 +28,43 @@ services:
             - NET_ADMIN
         restart: unless-stopped
 
+    monitor:
+        container_name: ovpnmonitor
+        build: ./monitor-docker
+        ports:
+            - "8084:80"
+        depends_on:
+            - openvpn
+        environment:
+            # General
+            - OPENVPNMONITOR_DEFAULT_DATETIMEFORMAT=%%d/%%m/%%Y
+            - OPENVPNMONITOR_DEFAULT_LATITUDE=-37
+            - OPENVPNMONITOR_DEFAULT_LOGO=logo.jpg
+            - OPENVPNMONITOR_DEFAULT_LONGITUDE=144
+            - OPENVPNMONITOR_DEFAULT_MAPS=True
+            - OPENVPNMONITOR_DEFAULT_MAPSHEIGHT=500
+            - OPENVPNMONITOR_DEFAULT_SITE=Test
+            # Site 1 - OpenVPN1
+            - OPENVPNMONITOR_SITES_0_ALIAS=OVPN1
+            - OPENVPNMONITOR_SITES_0_HOST=openvpn
+            - OPENVPNMONITOR_SITES_0_NAME=UDP
+            - OPENVPNMONITOR_SITES_0_PORT=7505
+            - OPENVPNMONITOR_SITES_0_SHOWDISCONNECT=True
+            # Site 2 - OpenVPN2
+            - OPENVPNMONITOR_SITES_1_ALIAS=OVPN2
+            - OPENVPNMONITOR_SITES_1_HOST=openvpn
+            - OPENVPNMONITOR_SITES_1_NAME=TCP
+            - OPENVPNMONITOR_SITES_1_PORT=7505
+        networks:
+            vpn-net:
+                ipv4_address: 172.20.0.4
+        restart: always
+
     pihole:
         container_name: pihole
         image: pihole/pihole:latest
         ports:
-            - "80:80/tcp"
+            - "1280:80/tcp"
         depends_on:
             - "openvpn"
         networks:
@@ -53,5 +88,5 @@ networks:
         ipam:
             driver: default
             config:
-                -   subnet: 172.20.0.0/16
+                -   subnet: 172.20.0.0/24
 
