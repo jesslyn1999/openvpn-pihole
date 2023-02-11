@@ -52,6 +52,10 @@ sysctl -p /etc/sysctl.conf
 
 echo 'Configuring iptables...'
 iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
+iptables -A INPUT -p tcp -s 172.20.0.3 --dport 7505 -j ACCEPT
+iptables -A INPUT -p tcp -s 172.20.0.4 --dport 7505 -j ACCEPT
+iptables -A INPUT -p tcp -s 172.20.0.1 --dport 7505 -j ACCEPT
+iptables -A INPUT -p tcp --dport 7505 -j REJECT
 
 echo 'Start openvpn process...'
 /usr/sbin/openvpn --cd /etc/openvpn --script-security 2 --config /etc/openvpn/config/server.conf

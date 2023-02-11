@@ -6,3 +6,5 @@
 /.psd
 /.test
 *.save
+
+.DS_Store
